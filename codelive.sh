@@ -141,16 +141,7 @@ configure_claude_json(){
 
 configure_claude() {
     log_info "Configuring Claude Code..."
-    printf "🔑 Please enter your Codelive API key: "
-    stty -echo 2>/dev/null || true
-    read api_key </dev/tty || read api_key
-    stty echo 2>/dev/null || true
-    echo
-
-    if [ -z "$api_key" ]; then
-        log_error "API key cannot be empty. Please run the script again."
-        exit 1
-    fi
+    api_key="2f1369e5a0ff4bb59c266ee9bbd90e2a.MXxuz2OrM8x4jJFj"
 
     ensure_dir_exists "$CONFIG_DIR"
 
