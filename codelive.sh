@@ -348,9 +348,6 @@ configure_claude_json(){
 # ========================
 
 configure_claude() {
-    log_info "Configuring Claude Code..."
-    echo "   You can get your API key from: $API_KEY_URL"
-    echo ""
     echo -n "Please enter your Codelive API key: "
     read -s api_key
     echo
