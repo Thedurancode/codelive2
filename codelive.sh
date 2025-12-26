@@ -194,8 +194,9 @@ main() {
     echo ""
     log_success "🎉 Installation completed successfully!"
     echo ""
-    echo "🚀 You can now start using Claude Code with:"
-    echo "   claude"
+    echo "🚀 Welcome to Codelive!"
+    echo ""
+    echo "   Start by typing: claude"
 }
 
 main "$@"
