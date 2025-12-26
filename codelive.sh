@@ -2,16 +2,6 @@
 
 set -euo pipefail
 
-# Check if running on Windows without proper shell support
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" || "$OSTYPE" == "cygwin" ]] && ! command -v bash &>/dev/null; then
-    echo "❌ This script requires Bash to run on Windows."
-    echo "Please install one of the following:"
-    echo "• Git Bash (included with Git for Windows): https://git-scm.com/download/win"
-    echo "• WSL (Windows Subsystem for Linux): https://aka.ms/wsl"
-    echo "• Cygwin: https://www.cygwin.com/"
-    exit 1
-fi
-
 # ========================
 #       Define Constants
 # ========================
@@ -29,77 +19,6 @@ API_TIMEOUT_MS=3000000
 # ========================
 #       Functions
 # ========================
-
-# Animation colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-CYAN='\033[0;36m'
-WHITE='\033[1;37m'
-NC='\033[0m' # No Color
-
-show_welcome_animation() {
-    clear
-    echo -e "${RED}"
-
-    # Frame 1
-    echo "╔═══════════════════════════════════════════════════════════════╗"
-    echo "║                                                               ║"
-    echo "║                                                               ║"
-    echo "║                                                               ║"
-    echo "║                                                               ║"
-    echo "║                                                               ║"
-    echo "║                                                               ║"
-    echo "╚═══════════════════════════════════════════════════════════════╝"
-    sleep 0.3
-
-    # Frame 2
-    clear
-    echo -e "${RED}"
-    echo "╔═══════════════════════════════════════════════════════════════╗"
-    echo "║                                                               ║"
-    echo "║        ████████╗██╗  ██╗██╗████████╗███████╗██████╗         ║"
-    echo "║        ╚══██╔══╝██║  ██║██║╚══██╔══╝██╔════╝██╔══██╗        ║"
-    echo "║           ██║   ███████║██║   ██║   █████╗  ██████╔╝        ║"
-    echo "║           ██║   ██╔══██║██║   ██║   ██╔══╝  ██╔══██╗        ║"
-    echo "║           ██║   ██║  ██║██║   ██║   ███████╗██║  ██║        ║"
-    echo "║           ╚═╝   ╚═╝  ╚═╝╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝        ║"
-    echo "╚═══════════════════════════════════════════════════════════════╝"
-    sleep 0.3
-
-    # Frame 3 - Full reveal with color
-    clear
-    echo -e "${RED}╔═══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${RED}║${NC}                                                               ${RED}║${NC}"
-    echo -e "${RED}║${NC}        ${RED}███████╗████████╗██╗███╗   ██╗██╗ ██████╗██╗  ██╗${NC} ${RED}║${NC}"
-    echo -e "${RED}║${NC}        ${RED}██╔════╝╚══██╔══╝██║████╗  ██║██║██╔════╝██║ ██╔╝${NC} ${RED}║${NC}"
-    echo -e "${RED}║${NC}        ${RED}███████╗   ██║   ██║██╔██╗ ██║██║██║     █████╔╝ ${NC} ${RED}║${NC}"
-    echo -e "${RED}║${NC}        ${RED}╚════██║   ██║   ██║██║╚██╗██║██║██║     ██╔═██╗ ${NC} ${RED}║${NC}"
-    echo -e "${RED}║${NC}        ${RED}███████║   ██║   ██║██║ ╚████║██║╚██████╗██║  ██╗${NC} ${RED}║${NC}"
-    echo -e "${RED}║${NC}        ${RED}╚══════╝   ╚═╝   ╚═╝╚═╝  ╚═══╝╚═╝ ╚═════╝╚═╝  ╚═╝${NC} ${RED}║${NC}"
-    echo -e "${RED}║${NC}                                                               ${RED}║${NC}"
-    echo -e "${RED}║${NC}                     ${CYAN}★★★★★ ${WHITE}WELCOME TO${CYAN} ★★★★★${NC}           ${RED}║${NC}"
-    echo -e "${RED}║${NC}                     ${YELLOW}🚀   C O D E L I V E   🚀${NC}           ${RED}║${NC}"
-    echo -e "${RED}║${NC}                                                               ${RED}║${NC}"
-    echo -e "${RED}║${NC}                 ${GREEN}Code By Ed Duran @THEDURANCODE${NC}              ${RED}║${NC}"
-    echo -e "${RED}╚═══════════════════════════════════════════════════════════════╝${NC}"
-
-    sleep 0.5
-
-    # Add blinking stars effect
-    for i in {1..3}; do
-        echo -e "\r${YELLOW}✨ Installing your AI-powered development environment... ✨${NC}"
-        sleep 0.5
-        echo -e "\r${YELLOW}⭐ Installing your AI-powered development environment... ⭐${NC}"
-        sleep 0.5
-    done
-
-    echo ""
-    echo ""
-    sleep 1
-}
 
 log_info() {
     echo "🔹 $*"
@@ -128,7 +47,7 @@ ensure_dir_exists() {
 # ========================
 
 install_nodejs() {
-    local platform=$(uname -s 2>/dev/null || echo "Windows")
+    local platform=$(uname -s)
 
     case "$platform" in
         Linux|Darwin)
@@ -154,138 +73,11 @@ install_nodejs() {
             log_success "Node.js installed: $(node -v)"
             log_success "npm version: $(npm -v)"
             ;;
-        Windows|CYGWIN*|MINGW*|MSYS*)
-            log_info "Installing Node.js on Windows..."
-
-            # Check for Chocolatey
-            if command -v choco &>/dev/null; then
-                log_info "Installing Node.js via Chocolatey..."
-                choco install nodejs --version="$NODE_INSTALL_VERSION" -y
-            # Check for Scoop
-            elif command -v scoop &>/dev/null; then
-                log_info "Installing Node.js via Scoop..."
-                scoop install nodejs
-            # Check for winget
-            elif command -v winget &>/dev/null; then
-                log_info "Installing Node.js via winget..."
-                winget install OpenJS.NodeJS --version "$NODE_INSTALL_VERSION"
-            else
-                log_info "No package manager found. Please install Node.js manually:"
-                log_info "1. Download from: https://nodejs.org/"
-                log_info "2. Or install Chocolatey: https://chocolatey.org/install"
-                log_info "3. Or install Scoop: https://scoop.sh/"
-                exit 1
-            fi
-
-            # Verify installation
-            node -v &>/dev/null || {
-                log_error "Node.js installation failed"
-                exit 1
-            }
-            log_success "Node.js installed: $(node -v)"
-            log_success "npm version: $(npm -v)"
-            ;;
         *)
             log_error "Unsupported platform: $platform"
             exit 1
             ;;
     esac
-}
-
-# ========================
-#       Git Installation
-# ========================
-
-install_git() {
-    local platform=$(uname -s 2>/dev/null || echo "Windows")
-
-    case "$platform" in
-        Linux)
-            log_info "Installing Git on Linux..."
-
-            # Check for package managers
-            if command -v apt-get &>/dev/null; then
-                sudo apt-get update && sudo apt-get install -y git
-            elif command -v yum &>/dev/null; then
-                sudo yum install -y git
-            elif command -v dnf &>/dev/null; then
-                sudo dnf install -y git
-            elif command -v pacman &>/dev/null; then
-                sudo pacman -S --noconfirm git
-            else
-                log_error "No supported package manager found for Git installation on Linux"
-                log_info "Please install Git manually: https://git-scm.com/download/linux"
-                exit 1
-            fi
-            ;;
-        Darwin)
-            log_info "Installing Git on macOS..."
-
-            # Check if Homebrew is installed
-            if command -v brew &>/dev/null; then
-                brew install git
-            elif command -v xcode-select &>/dev/null; then
-                # Install Xcode command line tools (includes git)
-                xcode-select --install
-                log_info "Please complete the Xcode Command Line Tools installation and run the script again"
-                exit 0
-            else
-                log_error "Please install Homebrew or Xcode Command Line Tools first"
-                log_info "Homebrew: https://brew.sh/"
-                log_info "Xcode CLI: xcode-select --install"
-                exit 1
-            fi
-            ;;
-        Windows|CYGWIN*|MINGW*|MSYS*)
-            log_info "Installing Git on Windows..."
-
-            # Check for Chocolatey
-            if command -v choco &>/dev/null; then
-                log_info "Installing Git via Chocolatey..."
-                choco install git -y
-            # Check for Scoop
-            elif command -v scoop &>/dev/null; then
-                log_info "Installing Git via Scoop..."
-                scoop install git
-            # Check for winget
-            elif command -v winget &>/dev/null; then
-                log_info "Installing Git via winget..."
-                winget install Git.Git -e --source winget
-            else
-                log_info "No package manager found. Please install Git manually:"
-                log_info "1. Download from: https://git-scm.com/download/win"
-                log_info "2. Or install Chocolatey: https://chocolatey.org/install"
-                log_info "3. Or install Scoop: https://scoop.sh/"
-                exit 1
-            fi
-            ;;
-        *)
-            log_error "Unsupported platform for Git installation: $platform"
-            log_info "Please install Git manually: https://git-scm.com/downloads"
-            exit 1
-            ;;
-    esac
-
-    # Verify installation
-    git --version &>/dev/null || {
-        log_error "Git installation failed"
-        exit 1
-    }
-    log_success "Git installed: $(git --version)"
-}
-
-# ========================
-#       Git Check
-# ========================
-
-check_git() {
-    if command -v git &>/dev/null; then
-        log_success "Git is already installed: $(git --version)"
-        return 0
-    else
-        log_info "Git not found. Installing..."
-        install_git
-    fi
 }
 
 # ========================
@@ -348,8 +140,9 @@ configure_claude_json(){
 # ========================
 
 configure_claude() {
-    echo -n "Please enter your Codelive API key: "
-    read -s api_key
+    log_info "Configuring Claude Code..."
+    echo "   You can get your API key from: $API_KEY_URL"
+    read -s -p "🔑 Please enter your Z.AI API key: " api_key
     echo
 
     if [ -z "$api_key" ]; then
@@ -380,16 +173,6 @@ configure_claude() {
                 ANTHROPIC_BASE_URL: "'"$API_BASE_URL"'",
                 API_TIMEOUT_MS: "'"$API_TIMEOUT_MS"'",
                 CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: 1
-            },
-            mcpServers: {
-                filesystem: {
-                    command: "npx",
-                    args: [
-                        "-y",
-                        "@modelcontextprotocol/server-filesystem",
-                        "'"$HOME"'"
-                    ]
-                }
             }
         }, null, 2), "utf-8");
     ' || {
@@ -405,36 +188,15 @@ configure_claude() {
 # ========================
 
 main() {
-    show_welcome_animation
     echo "🚀 Starting $SCRIPT_NAME"
 
-    check_git
     check_nodejs
     install_claude_code
     configure_claude_json
     configure_claude
 
     echo ""
-    log_success "🎉 CODELIVE installation completed successfully!"
-    echo ""
-    echo "🛠️  Installed tools: Git • Node.js • Claude Code"
-    echo ""
-    echo "📋 The script has automatically modified ~/.claude/settings.json to configure the following:"
-    echo "   You don't need to edit manually:"
-    echo ""
-    echo "   {"
-    echo "       \"env\": {"
-    echo "           \"ANTHROPIC_AUTH_TOKEN\": \"[your-api-key]\","
-    echo "           \"ANTHROPIC_BASE_URL\": \"https://api.z.ai/api/anthropic\","
-    echo "           \"API_TIMEOUT_MS\": \"3000000\""
-    echo "       },"
-    echo "       \"mcpServers\": {"
-    echo "           \"filesystem\": {"
-    echo "               \"command\": \"npx\","
-    echo "               \"args\": [\"-y\", \"@modelcontextprotocol/server-filesystem\", \"[your-home-dir]\"]"
-    echo "           }"
-    echo "       }"
-    echo "   }"
+    log_success "🎉 Installation completed successfully!"
     echo ""
     echo "🚀 You can now start using Claude Code with:"
     echo "   claude"
