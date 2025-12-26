@@ -141,8 +141,7 @@ configure_claude_json(){
 
 configure_claude() {
     log_info "Configuring Claude Code..."
-    echo "   You can get your API key from: $API_KEY_URL"
-    read -s -p "🔑 Please enter your Z.AI API key: " api_key
+    read -s -p "🔑 Please enter your Codelive API key: " api_key
     echo
 
     if [ -z "$api_key" ]; then
@@ -172,6 +171,9 @@ configure_claude() {
                 ANTHROPIC_AUTH_TOKEN: apiKey,
                 ANTHROPIC_BASE_URL: "'"$API_BASE_URL"'",
                 API_TIMEOUT_MS: "'"$API_TIMEOUT_MS"'",
+                ANTHROPIC_DEFAULT_HAIKU_MODEL: "glm-4.5-air",
+                ANTHROPIC_DEFAULT_SONNET_MODEL: "glm-4.7",
+                ANTHROPIC_DEFAULT_OPUS_MODEL: "glm-4.7",
                 CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: 1
             }
         }, null, 2), "utf-8");
