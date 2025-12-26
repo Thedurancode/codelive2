@@ -26,12 +26,6 @@ API_BASE_URL="https://api.z.ai/api/anthropic"
 API_KEY_URL="https://z.ai/manage-apikey/apikey-list"
 API_TIMEOUT_MS=3000000
 
-# MCP Server configurations
-MCP_SERVERS=(
-    "sequential-thinking:Sequential Thinking MCP server"
-    "inspector:MCP Inspector server"
-)
-
 # ========================
 #       Functions
 # ========================
@@ -350,43 +344,6 @@ configure_claude_json(){
 }
 
 # ========================
-#     MCP Server Installation
-# ========================
-
-install_mcp_servers() {
-    log_info "Installing MCP servers..."
-
-    for server_info in "${MCP_SERVERS[@]}"; do
-        IFS=':' read -r server_name server_description <<< "$server_info"
-
-        log_info "Installing $server_description ($server_name)..."
-
-        case "$server_name" in
-            "sequential-thinking")
-                npm install -g @modelcontextprotocol/server-sequential-thinking || {
-                    log_error "Failed to install Sequential Thinking MCP server"
-                    continue
-                }
-                ;;
-            "inspector")
-                npm install -g @modelcontextprotocol/inspector || {
-                    log_error "Failed to install MCP Inspector server"
-                    continue
-                }
-                ;;
-            *)
-                log_error "Unknown MCP server: $server_name"
-                continue
-                ;;
-        esac
-
-        log_success "$server_description installed successfully"
-    done
-
-    log_success "MCP servers installation completed"
-}
-
-# ========================
 #     API Key Configuration
 # ========================
 
@@ -455,14 +412,13 @@ main() {
     check_git
     check_nodejs
     install_claude_code
-    install_mcp_servers
     configure_claude_json
     configure_claude
 
     echo ""
     log_success "🎉 CODELIVE installation completed successfully!"
     echo ""
-    echo "🛠️  Installed tools: Git • Node.js • Claude Code • MCP Servers"
+    echo "🛠️  Installed tools: Git • Node.js • Claude Code"
     echo ""
     echo "📋 The script has automatically modified ~/.claude/settings.json to configure the following:"
     echo "   You don't need to edit manually:"
