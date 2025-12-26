@@ -141,7 +141,10 @@ configure_claude_json(){
 
 configure_claude() {
     log_info "Configuring Claude Code..."
-    read -s -p "🔑 Please enter your Codelive API key: " api_key </dev/tty
+    printf "🔑 Please enter your Codelive API key: "
+    stty -echo 2>/dev/null || true
+    read api_key </dev/tty || read api_key
+    stty echo 2>/dev/null || true
     echo
 
     if [ -z "$api_key" ]; then
